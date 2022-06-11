@@ -54,14 +54,14 @@ Returns all the book authors in json format as shown below
     }
 ```
 
-Add an author
+Json to Add an author
 
 ```json
     {
-         "first_name": "Ramachandra",
-         "last_name": "Guha",
-         "email": "ramachandra@gmail.com",
-         "dob": "1965-11-06"
+         "first_name": " ",
+         "last_name": " ",
+         "email": " ",
+         "dob": " "
     }
 ```
 
@@ -106,15 +106,15 @@ Json to Add a book
 
 ```json
     {
-        "title": "Art of War",
+        "title": " ",
         "author": {
-            "first_name": "Sun",
-            "last_name": "Zu",
-            "email": "sun@gmail.com",
-            "dob": "2021-07-26"
+            "first_name": " ",
+            "last_name": " ",
+            "email": " ",
+            "dob": " "
         },
-        "publication_year": 2021,
-        "description": "Testing"
+        "publication_year": ,
+        "description": " "
     }
 ```
 
@@ -220,6 +220,16 @@ API endpoint to check stock history
 Endpoint: api/stock/history/<stock_id>
 Endpoint Example: api/stock/history/1
 
+```json
+{
+    "stock_history": [
+        {
+            "stock_units": ,
+            "date": " "
+        }
+    ]
+}
+```
 
 # Running the Unit Test using Pytest
 Run the test using the below command:
