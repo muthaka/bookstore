@@ -56,6 +56,8 @@ Returns all the book authors in json format as shown below
 
 Json to Add an author
 
+POST
+
 ```json
     {
          "first_name": " ",
@@ -103,6 +105,8 @@ Endpoint: api/books
     }
 ```
 Json to Add a book
+
+POST
 
 ```json
     {
@@ -171,6 +175,8 @@ Endpoint: api/stocks
 ```
 
 Json to Add a new stock and new book
+
+POST
 
 ```json
 
