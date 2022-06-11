@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone
 
 # Create your models here.
 
@@ -33,16 +32,39 @@ class Book(models.Model):
 
 
 class Stock(models.Model):
-    stock_name = models.CharField(max_length=100, null=True)
-    books = models.ManyToManyField(Book, blank=True, related_name="stock_books")
+    book = models.OneToOneField(Book, on_delete=models.CASCADE, unique=True, related_name="stock_books")
+    stock_units = models.IntegerField()
     updated_on = models.DateTimeField(auto_now=True, null=True, blank=True)
     date = models.DateTimeField(auto_now_add=True, null=False, blank=False)
-    # stock_status = len(stock_books)
+
+    @property
+    def status(self):
+        # # Validate the stock status
+            if self.stock_units >= 10:
+                return "Good"
+            elif (self.stock_units >= 5) and (self.stock_units < 10):
+                return "Bad"
+            elif (self.stock_units >= 1) and (self.stock_units < 5):
+                return "Critical"
+            else:
+                return "Out of stock"
 
     class Meta:
-        ordering = ['-stock_name']
+        ordering = ['-date']
         verbose_name_plural = 'Stocks'
 
     def __str__(self):
-        return self.stock_name
+        return self.book.title
 
+
+class StockHistory(models.Model):
+    stock = models.ForeignKey(Stock, on_delete=models.CASCADE, related_name="stock")
+    stock_units = models.IntegerField()
+    date = models.DateTimeField(auto_now_add=True, null=False, blank=False)
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name_plural = 'StockHistory'
+
+    def __str__(self):
+        return self.stock.book.title

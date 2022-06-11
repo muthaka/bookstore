@@ -5,13 +5,21 @@ from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Q
+from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
 
 
+class BookStorePagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 10
+
+
 class AuthorsListApiView(APIView):
-    # permission to allow anyone to access the api
+    # # permission to allow anyone to access the api
     permission_classes = [permissions.AllowAny]
+    pagination_class = BookStorePagination
 
     # # List all Authors
     def get(self, request):
@@ -36,7 +44,7 @@ class AuthorsListApiView(APIView):
 
 
 class AuthorSingleApiView(APIView):
-    # permission to allow anyone to access the api
+    # # permission to allow anyone to access the api
     permission_classes = [permissions.AllowAny]
 
     def get_object(self, author_id):
@@ -97,7 +105,7 @@ class BooksListApiView(APIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = BookSerializer
 
-    # List all Books as per the filter
+    # # List all Books as per the filter
     def get(self, request):
         books = Book.objects.all()
         publication_year = self.request.query_params.get('publication_year', None)
@@ -111,13 +119,7 @@ class BooksListApiView(APIView):
 
     # # Create a Book
     def post(self, request):
-        data = {
-            'title': request.data.get('title'),
-            'author': request.data.get('author_id'),
-            'publication_year': request.data.get('publication_year'),
-            'description': request.data.get('description')
-        }
-        serializer = BookSerializer(data=data)
+        serializer = BookSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"books": serializer.data}, status=status.HTTP_201_CREATED)
@@ -126,11 +128,11 @@ class BooksListApiView(APIView):
 
 
 class StockListApiView(APIView):
-    # permission to allow anyone to access the api
+    # # permission to allow anyone to access the api
     permission_classes = [permissions.AllowAny]
     serializer_class = StockSerializer
 
-    # List all Stocks
+    # # List all Stocks
     def get(self, request):
         stocks = Stock.objects.all()
         serializer = StockSerializer(stocks, many=True)
@@ -138,12 +140,7 @@ class StockListApiView(APIView):
 
     # # Create a Stock
     def post(self, request):
-        data = {
-            'stock_name': request.data.get('stock_name'),
-            'books': int(request.data.get('books'))
-        }
-        print(data)
-        serializer = StockSerializer(data=data)
+        serializer = StockSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"stocks": serializer.data}, status=status.HTTP_201_CREATED)
@@ -151,8 +148,8 @@ class StockListApiView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class StockStatusApiView(APIView):
-    # permission to allow anyone to access the api
+class StockSingleApiView(APIView):
+    # # permission to allow anyone to access the api
     permission_classes = [permissions.AllowAny]
 
     def get_object(self, stock_id):
@@ -161,7 +158,7 @@ class StockStatusApiView(APIView):
         except Stock.DoesNotExist:
             return None
 
-    # # Retrieve Author using stock id
+    # # Retrieve Stock using stock id
     def get(self, request, stock_id):
         stock = self.get_object(stock_id)
         if not stock:
@@ -171,17 +168,73 @@ class StockStatusApiView(APIView):
             )
 
         serializer = StockSerializer(stock)
-        # # Get the stock size
-        stock_size = len(serializer.data['books'])
-        stock_status = ""
-        # # Validate the stock status
-        if stock_size >= 10:
-            stock_status = "Good"
-        elif (stock_size >= 5) and (stock_size < 10):
-            stock_status = "Bad"
-        elif (stock_size >= 1) and (stock_size < 5):
-            stock_status = "Critical"
-        else:
-            stock_status = "Out of stock"
+        return Response({"stock": serializer.data}, status=status.HTTP_200_OK)
 
-        return Response({"Stock Status": stock_status}, status=status.HTTP_200_OK)
+    # # Update Stock using stock id
+    def put(self, request, stock_id):
+        stock = self.get_object(stock_id)
+        if not stock:
+            return Response(
+                {"res": "Object with stock id does not exists"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        data = {
+            'stock_units': request.data.get('stock_units')
+        }
+
+        serializer = StockSerializer(instance=stock, data=data, partial=True)
+        history_data = request.data.get('stock_units')
+        if serializer.is_valid():
+            serializer.save()
+            # # Save stock update to the history model
+            StockHistory.objects.create(stock=stock, stock_units=history_data)
+
+            return Response({"response": "Stock Updated!"}, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # # Prevent Deleting Stock using stock id
+    def delete(self, request, stock_id):
+        stock = self.get_object(stock_id)
+        if not stock:
+            return Response(
+                {"response": "Deleting Stock is Not allowed!!"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(
+            {"response": "Deleting Stock is Not allowed!!"},
+            status=status.HTTP_200_OK
+        )
+
+
+class StockStatusApiView(APIView):
+    # # permission to allow anyone to access the api
+    permission_classes = [permissions.AllowAny]
+
+    def get_object(self, stock_id):
+        try:
+            return Stock.objects.get(id=stock_id)
+        except Stock.DoesNotExist:
+            return None
+
+    # # Retrieve Stock using stock id
+    def get(self, request, stock_id):
+        stock = self.get_object(stock_id)
+        if not stock:
+            return Response(
+                {"response": "Stock with stock id does not exists"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return Response({"Stock Status": stock.status}, status=status.HTTP_200_OK)
+
+
+class StockHistoryApiView(APIView):
+    # # permission to allow anyone to access the api
+    permission_classes = [permissions.AllowAny]
+
+    # # List History of Stock
+    def get(self, request, stock_id):
+        stocks = StockHistory.objects.filter(stock=stock_id)
+        serializer = StockHistorySerializer(stocks, many=True)
+        return Response({"stock_history": serializer.data}, status=status.HTTP_200_OK)
