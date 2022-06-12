@@ -197,6 +197,21 @@ POST
 
 ```
 
+API endpoint to list all stocks and add new stock
+
+Endpoint: api/stocks?book=
+Endpoint Example: api/stocks?book=3
+
+POST
+
+```json
+
+        {
+            "stock_units":
+        }
+
+```
+
 API endpoint to update stock unit
 
 Endpoint: api/stock/<stock_id>
