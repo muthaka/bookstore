@@ -141,9 +141,18 @@ class StockListApiView(APIView):
     # # Create a Stock
     def post(self, request):
         serializer = StockSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"stocks": serializer.data}, status=status.HTTP_201_CREATED)
+        book_id = self.request.query_params.get('book', None)
+        if book_id is not None:
+            stock_units = request.data.get('stock_units')
+            book_instance = Book.objects.get(id=book_id)
+            stock_instance = Stock.objects.create(book=book_instance, stock_units=stock_units)
+            # # Save stock to the history model
+            StockHistory.objects.create(stock=stock_instance, stock_units=stock_units)
+            return Response({"stocks": " 'Stock added Successfully"}, status=status.HTTP_201_CREATED)
+        else:
+            if serializer.is_valid():
+                serializer.save()
+                return Response({"stocks": serializer.data}, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
