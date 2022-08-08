@@ -12,6 +12,8 @@ To run the app on the root folder using your terminal, run the commands:
 
 1. Create an environment and Activate it.
 
+First create [Python Virtual Environment](https://www.geeksforgeeks.org/creating-python-virtual-environment-windows-linux/) in your computer then continue.
+
 ```json
 virtualenv env
 source env/bin/activate
@@ -45,6 +47,7 @@ Returns all the book authors in json format as shown below
     {
     "authors": [
         {
+            "id": ,
             "first_name": "Ramachandra",
             "last_name": "Guha",
             "email": "ramachandra@gmail.com",
@@ -75,6 +78,7 @@ Endpoint Example: api/author/5
 ```json
 {
     "author": {
+        "id": ,
         "first_name": "Alfredo",
         "last_name": "Covelli",
         "email": "alfredo@gmail.com",
@@ -91,8 +95,10 @@ Endpoint: api/books
     {
     "books": [
         {
+            "id": ,
             "title": "Vahana Masterclass",
             "author": {
+                "id": ,
                 "first_name": "Alfredo",
                 "last_name": "Covelli",
                 "email": "alfredo@gmail.com",
@@ -132,8 +138,10 @@ Endpoint: api/books?publication_year=2021&author=Singh
     {
     "books": [
         {
+            "id": ,
             "title": "Making of a General-A Himalayan Echo",
             "author": {
+                "id": ,
                 "first_name": "Lt. Gen. Konsam Himalay",
                 "last_name": "Singh",
                 "email": "singh@gmail.com",
@@ -156,8 +164,10 @@ Endpoint: api/stocks
     "stocks": [
         {
             "book": {
+                "id": ,
                 "title": "Vahana Masterclass",
                 "author": {
+                    "id": ,
                     "first_name": "Alfredo",
                     "last_name": "Covelli",
                     "email": "alfredo@gmail.com",

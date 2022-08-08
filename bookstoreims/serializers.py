@@ -5,7 +5,7 @@ from .models import *
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        fields = ('first_name', 'last_name', 'email', 'dob')
+        fields = ('id', 'first_name', 'last_name', 'email', 'dob')
 
 
 class BookSerializer(serializers.ModelSerializer):
@@ -13,7 +13,7 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ('title', 'author', 'publication_year', 'description')
+        fields = ('id', 'title', 'author', 'publication_year', 'description')
 
     def create(self, validated_data):
         author_data = validated_data.pop("author")
@@ -28,7 +28,7 @@ class StockSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stock
-        fields = ('book', 'stock_units', 'updated_on', 'date')
+        fields = ('id', 'book', 'stock_units', 'updated_on', 'date')
 
     def create(self, validated_data):
         book_data = validated_data.pop("book")
@@ -47,4 +47,4 @@ class StockHistorySerializer(serializers.ModelSerializer):
     # # stock = StockSerializer()
     class Meta:
         model = Stock
-        fields = ('stock_units', 'date')
+        fields = ('id', 'stock_units', 'date')
